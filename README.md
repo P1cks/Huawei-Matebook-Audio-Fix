@@ -13,7 +13,8 @@ sudo apt update && sudo apt install build-essential libncurses-dev bison flex li
 ```
 * **Fedora:**
 ```bash
-sudo dnf groupinstall "Development Tools"` and `sudo dnf install ncurses-devel bison flex openssl-devel elfutils-libelf-devel
+sudo dnf groupinstall "Development Tools"
+sudo dnf install ncurses-devel bison flex openssl-devel elfutils-libelf-devel
 ```
 
 ## Detailed Build Guide
