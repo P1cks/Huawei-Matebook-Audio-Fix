@@ -12,7 +12,7 @@ You will need the kernel sources (version 6.19 or later is recommended). Install
 ```bash
 sudo dnf install ncurses-devel flex bison openssl-devel elfutils-libelf-devel dwarves
 ```
-### 1. Download Kernel Source
+### 2. Download Kernel Source
 
 Download the kernel source (e.g., version 6.19) from [kernel.org](https://www.kernel.org):
    ```bash
@@ -20,14 +20,14 @@ Download the kernel source (e.g., version 6.19) from [kernel.org](https://www.ke
    tar -xf linux-6.19.tar.xz
    cd linux-6.19
    ```
-### 2. Apply the Patch
+### 3. Apply the Patch
 
 The patch modifies the acp3x-es83xx driver to support the ES83XX_HP_LOW quirk and adds your device to the DMI match table.
 ```bash
 cp /path/to/matebook-sound-fix.patch .
 patch -p1 < matebook-sound-fix.patch
 ```
-### 3. Configure the Kernel
+### 4. Configure the Kernel
 
 To avoid compilation errors and speed up the process, use your current system config and disable unnecessary debug modules.
 ```bash
@@ -37,7 +37,7 @@ scripts/config --disable CONFIG_TRUSTED_KEYS
 scripts/config --disable CONFIG_DEBUG_INFO
 scripts/config --disable CONFIG_DEBUG_INFO_BTF
 ```
-### 4. Build and Install
+### 5. Build and Install
 
 _Note: This process is CPU-intensive. Adjust -j according to your thread count._
 ```bash
@@ -46,7 +46,7 @@ sudo make modules_install
 sudo make install
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
-### 5. Final Setup
+### 6. Final Setup
 
 After rebooting into your new kernel:
 
