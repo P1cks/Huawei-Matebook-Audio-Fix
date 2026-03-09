@@ -52,6 +52,7 @@ sudo make modules_install
 sudo make install
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 ```
+_Note: Depending on your distribution, you may need to run sudo update-grub instead of sudo grub2-mkconfig -o /boot/grub2/grub.cfg to update your bootloader._
 ### 5. Final Setup
 
 After rebooting into your new kernel:
