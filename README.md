@@ -1,4 +1,4 @@
-# Huawei MateBook (AMD) Sound Fix Patch
+# Huawei MateBook (AMD) Audio Fix Patch
 
 This repository provides a kernel patch to resolve the 3.5mm headphone jack audio issue on Huawei MateBook laptops (specifically `BOM-WXX9` and similar models) running Linux with the ES8336 codec on AMD platforms.
 
