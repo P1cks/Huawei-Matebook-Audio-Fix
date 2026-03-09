@@ -49,7 +49,7 @@ After rebooting into your new kernel:
 
 3. Ensure "Headphone" and "Headphone Power" are unmuted (marked as [OO]).
 
-## Credits / Благодарности
+### Credits
 
 This patch was developed using code and logic from the following projects:
 
