@@ -7,8 +7,14 @@ The default Linux kernel `acp3x-es83xx` driver does not correctly identify the A
 
 ## Prerequisites
 Before you begin, ensure you have the necessary build tools installed on your system:
-* **Debian/Ubuntu/Mint:** `sudo apt update && sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev`
-* **Fedora:** `sudo dnf groupinstall "Development Tools"` and `sudo dnf install ncurses-devel bison flex openssl-devel elfutils-libelf-devel`
+* **Debian/Ubuntu/Mint:**
+```bash
+sudo apt update && sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev
+```
+* **Fedora:**
+```bash
+sudo dnf groupinstall "Development Tools"` and `sudo dnf install ncurses-devel bison flex openssl-devel elfutils-libelf-devel
+```
 
 ## Detailed Build Guide
 
