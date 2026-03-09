@@ -18,7 +18,8 @@ Download the kernel source (e.g., version 6.19) from [kernel.org](https://www.ke
 
 The patch modifies the acp3x-es83xx driver to support the ES83XX_HP_LOW quirk and adds your device to the DMI match table.
 ```bash
-patch -p1 < matebook-14-2021-AMD-HP-Fix.patch
+cp /path/to/matebook-sound-fix.patch .
+patch -p1 < matebook-sound-fix.patch
 ```
 ### 3. Configure the Kernel
 
@@ -34,7 +35,7 @@ scripts/config --disable CONFIG_DEBUG_INFO_BTF
 
 _Note: This process is CPU-intensive. Adjust -j according to your thread count._
 ```bash
-make -j$(($(nproc) / 2))
+make -j$(nproc)
 sudo make modules_install
 sudo make install
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg
