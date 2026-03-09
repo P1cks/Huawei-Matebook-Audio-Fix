@@ -74,4 +74,4 @@ If this fix helped you, please consider heading over to [Xellanox's repository](
 
 ### License
 
-This project is licensed under the GPL-2.0 License.
+This project is licensed under the GPL-3.0 License.
