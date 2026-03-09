@@ -10,7 +10,7 @@ The default Linux kernel `acp3x-es83xx` driver does not correctly identify the A
 ### 1. Download Kernel Source
 Download the kernel source (e.g., version 6.19) from [kernel.org](https://www.kernel.org):
    ```bash
-   wget [https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.19.tar.xz](https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.19.tar.xz)
+   wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.19.tar.xz
    tar -xf linux-6.19.tar.xz
    cd linux-6.19
    ```
