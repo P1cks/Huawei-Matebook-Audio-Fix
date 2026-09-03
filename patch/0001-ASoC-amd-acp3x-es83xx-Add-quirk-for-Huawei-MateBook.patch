@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dmitry <dmitry.udoven4ik@yandex.ru>
+Date: Mon, 31 Aug 2026 12:00:00 +0300
+Subject: [PATCH] ASoC: amd: acp3x-es83xx: Add quirk for Huawei MateBook
+ headphone jack
+
+The headphone amplifier on Huawei MateBook BOM-WXX9 (M1010) requires
+an active-low signal on the enable GPIO to function correctly. Without
+this quirk, the headphone jack remains silent.
+
+Add the ES83XX_HP_LOW quirk flag and apply it to the DMI match table
+for this specific model to ensure the GPIO is configured as active_low.
+
+Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
+---
+--- a/sound/soc/amd/acp/acp3x-es83xx/acp3x-es83xx.c
++++ b/sound/soc/amd/acp/acp3x-es83xx/acp3x-es83xx.c
+@@ -28,6 +28,7 @@
+ 
+ #define ES83XX_ENABLE_DMIC	BIT(4)
+ #define ES83XX_48_MHZ_MCLK	BIT(5)
++#define ES83XX_HP_LOW		BIT(6)
+ 
+ struct acp3x_es83xx_private {
+ 	bool speaker_on;
+@@ -229,7 +230,11 @@
+ 	priv->enable_hp_gpio.crs_entry_index = 1;
+ 
+ 	priv->enable_spk_gpio.active_low = false;
+-	priv->enable_hp_gpio.active_low = false;
++
++	if (priv->quirk & ES83XX_HP_LOW)
++		priv->enable_hp_gpio.active_low = true;
++	else
++		priv->enable_hp_gpio.active_low = false;
+ 
+ 	priv->gpio_mapping[0].name = "speakers-enable-gpios";
+ 	priv->gpio_mapping[0].data = &priv->enable_spk_gpio;
+@@ -356,7 +361,7 @@
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "BOM-WXX9"),
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "M1010"),
+ 		},
+-		.driver_data = (void *)(ES83XX_ENABLE_DMIC|ES83XX_48_MHZ_MCLK),
++		.driver_data = (void *)(ES83XX_ENABLE_DMIC | ES83XX_48_MHZ_MCLK | ES83XX_HP_LOW),
+ 	},
+ 	{
+ 		.matches = {
