@@ -1,0 +1,60 @@
+name: Verify Patch
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    # Automatically run every Monday at 08:00 UTC to catch new kernel releases
+    - cron: '0 8 * * 1'
+
+jobs:
+  checkpatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch checkpatch tools
+        run: |
+          BASE=https://raw.githubusercontent.com/torvalds/linux/master/scripts
+          wget -q $BASE/checkpatch.pl -O checkpatch.pl
+          wget -q $BASE/spelling.txt -O spelling.txt
+          wget -q $BASE/const_structs.checkpatch -O const_structs.checkpatch
+          chmod +x checkpatch.pl
+      - name: Run checkpatch
+        run: ./checkpatch.pl --strict --no-tree patch/0001-ASoC-amd-acp3x-es83xx-Add-quirk-for-Huawei-MateBook.patch
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Do not cancel other kernels if one fails
+      matrix:
+        kernel_version:
+          - "6.18.49"   # LTS
+          - "6.12.108"  # LTS
+          - "7.2.3"     # Latest stable
+          - "7.1.13"    # EOL
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential flex bison libssl-dev libelf-dev bc wget xz-utils
+
+      - name: Download kernel source
+        run: |
+          MAJOR_VER=$(echo "${{ matrix.kernel_version }}" | cut -d. -f1)
+          wget -q "https://cdn.kernel.org/pub/linux/kernel/v${MAJOR_VER}.x/linux-${{ matrix.kernel_version }}.tar.xz"
+          tar -xf "linux-${{ matrix.kernel_version }}.tar.xz"
+
+      - name: Apply patch
+        run: patch -p1 -d "linux-${{ matrix.kernel_version }}" < patch/0001-ASoC-amd-acp3x-es83xx-Add-quirk-for-Huawei-MateBook.patch
+
+      - name: Configure kernel
+        run: |
+          make -C "linux-${{ matrix.kernel_version }}" allmodconfig
+          make -C "linux-${{ matrix.kernel_version }}" modules_prepare
+
+      - name: Build ACP sound modules
+        run: make -C "linux-${{ matrix.kernel_version }}" -j"$(nproc)" M=sound/soc/amd/acp modules
