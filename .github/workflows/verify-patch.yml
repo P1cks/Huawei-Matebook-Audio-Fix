@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    # Automatically run every Monday at 08:00 UTC to catch new kernel releases
     - cron: '0 8 * * 1'
 
 jobs:
@@ -27,13 +26,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # Do not cancel other kernels if one fails
+      fail-fast: false
       matrix:
         kernel_version:
-          - "6.18.49"   # LTS
-          - "6.12.108"  # LTS
-          - "7.2.3"     # Latest stable
-          - "7.1.13"    # EOL
+          - "6.12.108"
+          - "6.18.49"
+          - "7.1.13"
+          - "7.2.3"
     steps:
       - uses: actions/checkout@v4
 
@@ -57,4 +56,4 @@ jobs:
           make -C "linux-${{ matrix.kernel_version }}" modules_prepare
 
       - name: Build ACP sound modules
-        run: make -C "linux-${{ matrix.kernel_version }}" -j"$(nproc)" M=sound/soc/amd/acp modules
+        run: make -C "linux-${{ matrix.kernel_version }}" -j"$(nproc)" KBUILD_MODPOST_WARN=1 M=sound/soc/amd/acp modules
