@@ -28,7 +28,7 @@ for arg in "$@"; do
 done
 
 VENDOR=$(cat /sys/class/dmi/id/board_vendor 2>/dev/null || echo unknown)
-MODEL=$(cat /sys/class/dmi/id/board_name 2>/dev/null || echo unknown)
+MODEL=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo unknown)
 info "Detected system: $VENDOR $MODEL"
 
 case "$MODEL" in
@@ -62,9 +62,9 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -f "$SCRIPT_DIR/dkms/dkms.conf" ] || { error "dkms/ folder not found."; exit 1; }
 
-if dkms status "$PACKAGE/$VERSION" 2>/dev/null | grep -q installed; then
-    info "Removing previous DKMS installation..."
-    dkms remove "$PACKAGE/$VERSION" --all >/dev/null
+if dkms status "$PACKAGE/$VERSION" 2>/dev/null | grep -q "$PACKAGE/$VERSION"; then
+    info "Removing previous DKMS state..."
+    dkms remove "$PACKAGE/$VERSION" --all >/dev/null || true
 fi
 
 info "Adding DKMS module..."

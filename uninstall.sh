@@ -8,7 +8,7 @@ VERSION="1.0"
 
 [ "$EUID" -ne 0 ] && { echo "Run as root: sudo ./uninstall.sh" >&2; exit 1; }
 
-if dkms status "$PACKAGE/$VERSION" 2>/dev/null | grep -q installed; then
+if dkms status "$PACKAGE/$VERSION" 2>/dev/null | grep -q "$PACKAGE/$VERSION"; then
     echo "Removing DKMS module..."
     dkms remove "$PACKAGE/$VERSION" --all
 else
