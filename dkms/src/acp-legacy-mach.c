@@ -119,6 +119,19 @@ static int acp_asoc_resume_post(struct snd_soc_card *card)
 		return ret;
 }
 
+static void acp_asoc_shutdown(struct platform_device *pdev)
+{
+	struct snd_soc_card *card = platform_get_drvdata(pdev);
+	struct acp_card_drvdata *drvdata;
+
+	if (!card)
+		return;
+
+	drvdata = acp_get_drvdata(card);
+	if (drvdata->hs_codec_id == ES83XX)
+		acp3x_es83xx_shutdown(card);
+}
+
 static int acp_asoc_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = NULL;
@@ -235,6 +248,7 @@ static struct platform_driver acp_asoc_audio = {
 		.name = "acp_mach",
 	},
 	.probe = acp_asoc_probe,
+	.shutdown = acp_asoc_shutdown,
 	.id_table = board_ids,
 };
 
