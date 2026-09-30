@@ -129,6 +129,24 @@ sudo mokutil --import /var/lib/dkms/mok.pub
 - scripts/ — helper tools (checkpatch.pl)
 - .github/workflows/ — CI: checkpatch + kernel build matrix
 
+## Speaker pop fix
+
+The speaker amplifier is gated by a GPIO that the stock driver switched at the
+wrong moments relative to the codec, which caused audible pops at boot, login,
+suspend, shutdown and after playback stopped. This module now:
+
+- enables the amp only after the codec output stage is up (50 ms settle) and
+  disables it 20 ms before the output stage powers down;
+- takes the amp GPIOs in the card probe step, with the amp off;
+- cuts the amp in suspend and at shutdown.
+
+The delays can be tuned at runtime through
+/sys/module/snd_acp_legacy_mach/parameters/spk_on_delay_ms and spk_off_delay_ms
+(defaults 50 and 20). To make a change permanent, put
+`options snd_acp_legacy_mach spk_on_delay_ms=150` in a file under /etc/modprobe.d/.
+
+Tested on BOM-WXX9 (Fedora 44, kernel 7.2.7). Other models are unverified.
+
 ## Upstream Status
 
 The patch is intended for submission to the Linux kernel (ASoC / AMD ACP maintainers). Once accepted upstream, this repository will no longer be needed.
