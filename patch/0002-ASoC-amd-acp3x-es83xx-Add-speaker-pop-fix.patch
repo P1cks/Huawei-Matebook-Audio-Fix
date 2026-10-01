@@ -22,7 +22,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 @@ -30,6 +31,31 @@
  #define ES83XX_48_MHZ_MCLK	BIT(5)
  #define ES83XX_HP_LOW		BIT(6)
- 
+
 +/*
 + * Speaker amp sequencing. The speakers are fed from the codec HP outputs
 + * through an external amp gated by the speakers-enable GPIO. The amp must
@@ -53,7 +53,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
  	bool headphone_on;
 @@ -109,7 +135,12 @@
  };
- 
+
  static const struct snd_soc_dapm_widget acp3x_es83xx_widgets[] = {
 -	SND_SOC_DAPM_SPK("Speaker", NULL),
 +	/*
@@ -73,7 +73,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 -			    acp3x_es83xx_speaker_power_event,
 -			    SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMU),
  };
- 
+
  static const struct snd_soc_dapm_route acp3x_es83xx_audio_map[] = {
 @@ -133,7 +161,6 @@
  	 */
@@ -81,12 +81,12 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
  	{"Speaker", NULL, "HPOR"},
 -	{"Speaker", NULL, "Speaker Power"},
  };
- 
- 
+
+
 @@ -168,7 +195,11 @@
  	else
  		priv->headphone_on = false;
- 
+
 -	gpiod_set_value_cansleep(priv->gpio_speakers, priv->speaker_on);
 +	/*
 +	 * Only touch the headphone amp. The speaker amp is sequenced by the
@@ -94,11 +94,11 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 +	 * point where the codec output is not up (e.g. during suspend).
 +	 */
  	gpiod_set_value_cansleep(priv->gpio_headphone, priv->headphone_on);
- 
+
  	return 0;
 @@ -181,13 +212,17 @@
  	struct acp3x_es83xx_private *priv = get_mach_priv(card);
- 
+
  	dev_dbg(priv->codec_dev, "speaker power event: %d\n", event);
 -	if (SND_SOC_DAPM_EVENT_ON(event))
 +	if (SND_SOC_DAPM_EVENT_ON(event)) {
@@ -116,7 +116,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 +		gpiod_set_value_cansleep(priv->gpio_speakers, 0);
 +		acp3x_es83xx_spk_delay(spk_off_delay_ms);
 +	}
- 
+
  	return 0;
  }
 @@ -207,6 +242,15 @@
@@ -154,7 +154,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 +	snd_soc_dapm_mutex_unlock(card);
  	return 0;
  }
- 
+
 +void acp3x_es83xx_shutdown(struct snd_soc_card *card)
 +{
 +	struct acp3x_es83xx_private *priv = get_mach_priv(card);
@@ -170,11 +170,11 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 +
  static int acp3x_es83xx_configure_gpios(struct acp3x_es83xx_private *priv)
  {
- 
+
 @@ -254,6 +324,70 @@
  	return 0;
  }
- 
+
 +static void acp3x_es83xx_put_gpios(void *data)
 +{
 +	struct acp3x_es83xx_private *priv = data;
@@ -244,7 +244,7 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
  	int num_routes = 0;
 @@ -298,25 +432,6 @@
  	snd_soc_component_set_jack(codec, &es83xx_jack, NULL);
- 
+
  	priv->codec = codec;
 -	acp3x_es83xx_configure_gpios(priv);
 -
@@ -265,11 +265,11 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
 -		dev_err(priv->codec_dev, "could not get headphone-enable GPIO\n");
 -		return PTR_ERR(priv->gpio_headphone);
 -	}
- 
+
  	num_routes = acp3x_es83xx_configure_mics(priv);
  	if (num_routes > 0) {
 @@ -440,6 +555,12 @@
- 
+
  		priv->codec_dev = codec_dev;
  		priv->quirk = (unsigned long)dmi_id->driver_data;
 +
