@@ -17,7 +17,7 @@ jobs:
       - id: versions
         run: |
           wget -q https://www.kernel.org/releases.json
-          echo "versions=$(jq -c '[.releases[] | select(.iseol != true) | .version]' releases.json)" >> "$GITHUB_OUTPUT"
+          echo "versions=$(jq -c '[.releases[] | select(.iseol != true and (.version | startswith("7.")) and (.version | test("rc") | not)) | .version]' releases.json)" >> "$GITHUB_OUTPUT"
 
   checkpatch:
     runs-on: ubuntu-latest

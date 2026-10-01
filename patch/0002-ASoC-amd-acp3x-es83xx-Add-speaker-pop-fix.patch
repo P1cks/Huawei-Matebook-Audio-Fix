@@ -281,3 +281,16 @@ Signed-off-by: Dmitry <dmitry.udoven4ik@yandex.ru>
  		acp_drvdata->mach_priv = priv;
  		dev_info(dev, "successfully probed the sound card\n");
  	} else {
+--- a/sound/soc/amd/acp/acp3x-es83xx/acp3x-es83xx.h
++++ b/sound/soc/amd/acp/acp3x-es83xx/acp3x-es83xx.h
+@@ -6,7 +6,11 @@
+ #ifndef __ACP3X_ES83XX_H
+ #define __ACP3X_ES83XX_H
+
++struct acp_mach_ops;
++struct snd_soc_card;
++
+ void acp3x_es83xx_init_ops(struct acp_mach_ops *ops);
++void acp3x_es83xx_shutdown(struct snd_soc_card *card);
+
+ #endif
