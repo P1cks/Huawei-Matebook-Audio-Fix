@@ -9,6 +9,16 @@ on:
     - cron: '0 8 * * 1'
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.versions.outputs.versions }}
+    steps:
+      - id: versions
+        run: |
+          wget -q https://www.kernel.org/releases.json
+          echo "versions=$(jq -c '[.releases[] | select(.iseol != true) | .version]' releases.json)" >> "$GITHUB_OUTPUT"
+
   checkpatch:
     runs-on: ubuntu-latest
     steps:
@@ -20,19 +30,18 @@ jobs:
           wget -q $BASE/spelling.txt -O spelling.txt
           wget -q $BASE/const_structs.checkpatch -O const_structs.checkpatch
           chmod +x checkpatch.pl
-      - name: Run checkpatch
+      - name: Run checkpatch on patch 0001
         run: ./checkpatch.pl --strict --no-tree patch/0001-ASoC-amd-acp3x-es83xx-Add-quirk-for-Huawei-MateBook.patch
+      - name: Run checkpatch on patch 0002
+        run: ./checkpatch.pl --strict --no-tree patch/0002-ASoC-amd-acp3x-es83xx-Add-speaker-pop-fix.patch
 
   build:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        kernel_version:
-          - "6.12.108"
-          - "6.18.49"
-          - "7.1.13"
-          - "7.2.3"
+        kernel_version: ${{ fromJSON(needs.prepare.outputs.versions) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -47,8 +56,10 @@ jobs:
           wget -q "https://cdn.kernel.org/pub/linux/kernel/v${MAJOR_VER}.x/linux-${{ matrix.kernel_version }}.tar.xz"
           tar -xf "linux-${{ matrix.kernel_version }}.tar.xz"
 
-      - name: Apply patch
-        run: patch -p1 -d "linux-${{ matrix.kernel_version }}" < patch/0001-ASoC-amd-acp3x-es83xx-Add-quirk-for-Huawei-MateBook.patch
+      - name: Apply patches
+        run: |
+          patch -p1 -d "linux-${{ matrix.kernel_version }}" < patch/0001-ASoC-amd-acp3x-es83xx-Add-quirk-for-Huawei-MateBook.patch
+          patch -p1 -d "linux-${{ matrix.kernel_version }}" < patch/0002-ASoC-amd-acp3x-es83xx-Add-speaker-pop-fix.patch
 
       - name: Configure kernel
         run: |
